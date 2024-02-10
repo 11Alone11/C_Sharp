@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Runtime.InteropServices;
+using M = Microsoft.Office.Interop.Word;
 
 
 namespace WindowsFormsApp1
@@ -101,13 +103,13 @@ namespace WindowsFormsApp1
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                Filter = "Rich Text Format (*.rtf)|*.rtf|All files (*.*)|*.*",
-                DefaultExt = "rtf"
+                Filter = "Word Document (*.docx)|*.docx",
+                DefaultExt = "docx"
             };
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                richTextBox1.SaveFile(saveFileDialog.FileName, RichTextBoxStreamType.RichText);
+                SaveRichTextContentToWordDoc(saveFileDialog.FileName);
             }
         }
 
@@ -115,13 +117,13 @@ namespace WindowsFormsApp1
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                Filter = "Rich Text Format (*.rtf)|*.rtf|All files (*.*)|*.*",
-                DefaultExt = "rtf"
+                Filter = "Word Document (*.docx)|*.docx",
+                DefaultExt = "docx"
             };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                richTextBox1.LoadFile(openFileDialog.FileName, RichTextBoxStreamType.RichText);
+                LoadWordDocToRichTextBox(openFileDialog.FileName);
             }
         }
 
@@ -149,6 +151,101 @@ namespace WindowsFormsApp1
                 }
             }
         }
+
+        private void SaveRichTextContentToWordDoc(string filePath)
+        {
+            var wordApp = new M.Application();
+            M.Document doc = null;
+
+            try
+            {
+                doc = wordApp.Documents.Add();
+                wordApp.Visible = false; // Не показываем документ пользователю во время сохранения
+
+                // Проходимся по всему тексту RichTextBox и сохраняем форматирование
+                for (int i = 0; i < richTextBox1.TextLength; i++)
+                {
+                    richTextBox1.Select(i, 1);
+                    string selectedText = richTextBox1.SelectedText;
+                    System.Drawing.Font font = richTextBox1.SelectionFont;
+                    System.Drawing.Color textColor = richTextBox1.SelectionColor;
+
+                    M.Range range = doc.Range(doc.Content.End - 1);
+
+                    // Добавляем текст в документ
+                    range.Text = selectedText;
+
+                    // Применяем шрифт и размер
+                    range.Font.Name = font.Name;
+                    range.Font.Size = font.Size;
+
+                    // Применяем стили жирного и курсивного текста
+                    range.Font.Bold = font.Bold ? 1 : 0;
+                    range.Font.Italic = font.Italic ? 1 : 0;
+
+                    // Устанавливаем цвет текста
+                    int colorRgb = (textColor.R + 0x100 * textColor.G + 0x10000 * textColor.B);
+                    range.Font.Color = (M.WdColor)(colorRgb);
+
+                    // Если нужно применить другие стили, добавьте их здесь
+                }
+
+                // Сохраняем документ
+                doc.SaveAs2(filePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка: " + ex.Message);
+            }
+            finally
+            {
+                // Закрываем документ и Word, освобождаем ресурсы
+                if (doc != null)
+                {
+                    doc.Close(M.WdSaveOptions.wdDoNotSaveChanges);
+                    Marshal.ReleaseComObject(doc);
+                }
+                wordApp.Quit(M.WdSaveOptions.wdDoNotSaveChanges);
+                Marshal.ReleaseComObject(wordApp);
+            }
+        }
+
+        private void LoadWordDocToRichTextBox(string filePath)
+        {
+            var wordApp = new M.Application();
+            M.Document doc = null;
+
+            try
+            {
+                // Открываем документ только для чтения
+                doc = wordApp.Documents.Open(filePath, ReadOnly: true);
+                wordApp.Visible = false;
+
+                // Копируем содержимое в буфер обмена
+                doc.Content.Select();
+                doc.Content.Copy();
+
+                // Вставляем содержимое буфера обмена в RichTextBox
+                richTextBox1.Paste();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при загрузке файла Word: " + ex.Message);
+            }
+            finally
+            {
+                // Закрываем Word и освобождаем ресурсы
+                if (doc != null)
+                {
+                    doc.Close(M.WdSaveOptions.wdDoNotSaveChanges);
+                    Marshal.ReleaseComObject(doc);
+                }
+                wordApp.Quit(M.WdSaveOptions.wdDoNotSaveChanges);
+                Marshal.ReleaseComObject(wordApp);
+                Clipboard.Clear(); // Очистка буфера обмена
+            }
+        }
+
 
     }
 }
