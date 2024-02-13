@@ -31,13 +31,12 @@
             this.comboBoxFont = new System.Windows.Forms.ComboBox();
             this.numericUpDownFontSize = new System.Windows.Forms.NumericUpDown();
             this.checkBoxBold = new System.Windows.Forms.CheckBox();
-            this.buttonSaveText = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.checkBoxItalic = new System.Windows.Forms.CheckBox();
-            this.buttonLoadText = new System.Windows.Forms.Button();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.pictureBoxColorIndicator = new System.Windows.Forms.PictureBox();
             this.buttonChooseColor = new System.Windows.Forms.Button();
+            this.checkBoxUnderline = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxColorIndicator)).BeginInit();
             this.SuspendLayout();
@@ -46,7 +45,6 @@
             // 
             this.comboBoxFont.BackColor = System.Drawing.SystemColors.Control;
             this.comboBoxFont.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.comboBoxFont.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.comboBoxFont.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.comboBoxFont.FormattingEnabled = true;
             this.comboBoxFont.Location = new System.Drawing.Point(23, 30);
@@ -63,9 +61,10 @@
             this.numericUpDownFontSize.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numericUpDownFontSize.Cursor = System.Windows.Forms.Cursors.Hand;
             this.numericUpDownFontSize.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold);
-            this.numericUpDownFontSize.Location = new System.Drawing.Point(336, 31);
+            this.numericUpDownFontSize.Location = new System.Drawing.Point(336, 30);
+            this.numericUpDownFontSize.MinimumSize = new System.Drawing.Size(100, 0);
             this.numericUpDownFontSize.Name = "numericUpDownFontSize";
-            this.numericUpDownFontSize.Size = new System.Drawing.Size(95, 32);
+            this.numericUpDownFontSize.Size = new System.Drawing.Size(100, 32);
             this.numericUpDownFontSize.TabIndex = 1;
             this.numericUpDownFontSize.ValueChanged += new System.EventHandler(this.numericUpDownFontSize_ValueChanged);
             // 
@@ -92,44 +91,25 @@
             this.checkBoxBold.UseVisualStyleBackColor = false;
             this.checkBoxBold.CheckedChanged += new System.EventHandler(this.checkBoxBold_CheckedChanged);
             // 
-            // buttonSaveText
-            // 
-            this.buttonSaveText.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.buttonSaveText.FlatAppearance.BorderColor = System.Drawing.Color.Lime;
-            this.buttonSaveText.FlatAppearance.BorderSize = 2;
-            this.buttonSaveText.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.buttonSaveText.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.buttonSaveText.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonSaveText.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonSaveText.Location = new System.Drawing.Point(665, 30);
-            this.buttonSaveText.Margin = new System.Windows.Forms.Padding(10);
-            this.buttonSaveText.MinimumSize = new System.Drawing.Size(240, 50);
-            this.buttonSaveText.Name = "buttonSaveText";
-            this.buttonSaveText.Size = new System.Drawing.Size(240, 50);
-            this.buttonSaveText.TabIndex = 3;
-            this.buttonSaveText.Text = "Сохранить текст";
-            this.buttonSaveText.UseVisualStyleBackColor = true;
-            this.buttonSaveText.Click += new System.EventHandler(this.buttonSaveText_Click);
-            // 
             // richTextBox1
             // 
             this.richTextBox1.AcceptsTab = true;
             this.richTextBox1.AutoWordSelection = true;
             this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.richTextBox1.EnableAutoDragDrop = true;
             this.richTextBox1.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.richTextBox1.HideSelection = false;
-            this.richTextBox1.Location = new System.Drawing.Point(23, 170);
+            this.richTextBox1.Location = new System.Drawing.Point(20, 173);
             this.richTextBox1.Margin = new System.Windows.Forms.Padding(10);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(882, 353);
+            this.richTextBox1.Size = new System.Drawing.Size(888, 353);
             this.richTextBox1.TabIndex = 9;
             this.richTextBox1.Text = "Hello World";
             // 
             // checkBoxItalic
             // 
             this.checkBoxItalic.Appearance = System.Windows.Forms.Appearance.Button;
-            this.checkBoxItalic.AutoSize = true;
             this.checkBoxItalic.Cursor = System.Windows.Forms.Cursors.Hand;
             this.checkBoxItalic.FlatAppearance.BorderColor = System.Drawing.Color.Lime;
             this.checkBoxItalic.FlatAppearance.BorderSize = 2;
@@ -149,30 +129,11 @@
             this.checkBoxItalic.UseVisualStyleBackColor = true;
             this.checkBoxItalic.CheckedChanged += new System.EventHandler(this.checkBoxItalic_CheckedChanged);
             // 
-            // buttonLoadText
-            // 
-            this.buttonLoadText.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.buttonLoadText.FlatAppearance.BorderColor = System.Drawing.Color.Lime;
-            this.buttonLoadText.FlatAppearance.BorderSize = 2;
-            this.buttonLoadText.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.buttonLoadText.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            this.buttonLoadText.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonLoadText.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold);
-            this.buttonLoadText.Location = new System.Drawing.Point(665, 100);
-            this.buttonLoadText.Margin = new System.Windows.Forms.Padding(10);
-            this.buttonLoadText.MinimumSize = new System.Drawing.Size(240, 50);
-            this.buttonLoadText.Name = "buttonLoadText";
-            this.buttonLoadText.Size = new System.Drawing.Size(240, 50);
-            this.buttonLoadText.TabIndex = 6;
-            this.buttonLoadText.Text = "Загрузить текст";
-            this.buttonLoadText.UseVisualStyleBackColor = true;
-            this.buttonLoadText.Click += new System.EventHandler(this.buttonLoadText_Click);
-            // 
             // pictureBoxColorIndicator
             // 
-            this.pictureBoxColorIndicator.Location = new System.Drawing.Point(456, 30);
+            this.pictureBoxColorIndicator.Location = new System.Drawing.Point(476, 30);
             this.pictureBoxColorIndicator.Name = "pictureBoxColorIndicator";
-            this.pictureBoxColorIndicator.Size = new System.Drawing.Size(60, 60);
+            this.pictureBoxColorIndicator.Size = new System.Drawing.Size(47, 47);
             this.pictureBoxColorIndicator.TabIndex = 7;
             this.pictureBoxColorIndicator.TabStop = false;
             // 
@@ -183,12 +144,34 @@
             this.buttonChooseColor.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.buttonChooseColor.FlatAppearance.BorderSize = 0;
             this.buttonChooseColor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonChooseColor.Location = new System.Drawing.Point(456, 30);
+            this.buttonChooseColor.Location = new System.Drawing.Point(476, 30);
             this.buttonChooseColor.Name = "buttonChooseColor";
-            this.buttonChooseColor.Size = new System.Drawing.Size(60, 60);
+            this.buttonChooseColor.Size = new System.Drawing.Size(47, 47);
             this.buttonChooseColor.TabIndex = 8;
             this.buttonChooseColor.UseVisualStyleBackColor = false;
             this.buttonChooseColor.Click += new System.EventHandler(this.buttonChooseColor_Click);
+            // 
+            // checkBoxUnderline
+            // 
+            this.checkBoxUnderline.Appearance = System.Windows.Forms.Appearance.Button;
+            this.checkBoxUnderline.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.checkBoxUnderline.FlatAppearance.BorderColor = System.Drawing.Color.Lime;
+            this.checkBoxUnderline.FlatAppearance.BorderSize = 2;
+            this.checkBoxUnderline.FlatAppearance.CheckedBackColor = System.Drawing.Color.LightGreen;
+            this.checkBoxUnderline.FlatAppearance.MouseDownBackColor = System.Drawing.Color.LightGreen;
+            this.checkBoxUnderline.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.checkBoxUnderline.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.checkBoxUnderline.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold);
+            this.checkBoxUnderline.Location = new System.Drawing.Point(323, 90);
+            this.checkBoxUnderline.Margin = new System.Windows.Forms.Padding(10);
+            this.checkBoxUnderline.MinimumSize = new System.Drawing.Size(200, 50);
+            this.checkBoxUnderline.Name = "checkBoxUnderline";
+            this.checkBoxUnderline.Size = new System.Drawing.Size(200, 50);
+            this.checkBoxUnderline.TabIndex = 10;
+            this.checkBoxUnderline.Text = "Подчеркнутый";
+            this.checkBoxUnderline.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.checkBoxUnderline.UseVisualStyleBackColor = true;
+            this.checkBoxUnderline.CheckedChanged += new System.EventHandler(this.checkBoxUnderline_CheckedChanged);
             // 
             // Form1
             // 
@@ -196,12 +179,11 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(928, 546);
+            this.Controls.Add(this.checkBoxUnderline);
             this.Controls.Add(this.buttonChooseColor);
             this.Controls.Add(this.pictureBoxColorIndicator);
-            this.Controls.Add(this.buttonLoadText);
             this.Controls.Add(this.checkBoxItalic);
             this.Controls.Add(this.richTextBox1);
-            this.Controls.Add(this.buttonSaveText);
             this.Controls.Add(this.checkBoxBold);
             this.Controls.Add(this.numericUpDownFontSize);
             this.Controls.Add(this.comboBoxFont);
@@ -213,7 +195,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxColorIndicator)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -222,13 +203,12 @@
         private System.Windows.Forms.ComboBox comboBoxFont;
         private System.Windows.Forms.NumericUpDown numericUpDownFontSize;
         private System.Windows.Forms.CheckBox checkBoxBold;
-        private System.Windows.Forms.Button buttonSaveText;
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.CheckBox checkBoxItalic;
-        private System.Windows.Forms.Button buttonLoadText;
         private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.PictureBox pictureBoxColorIndicator;
         private System.Windows.Forms.Button buttonChooseColor;
+        private System.Windows.Forms.CheckBox checkBoxUnderline;
     }
 }
 
