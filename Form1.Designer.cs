@@ -31,12 +31,12 @@
             this.comboBoxFont = new System.Windows.Forms.ComboBox();
             this.numericUpDownFontSize = new System.Windows.Forms.NumericUpDown();
             this.checkBoxBold = new System.Windows.Forms.CheckBox();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.checkBoxItalic = new System.Windows.Forms.CheckBox();
+            this.checkBoxUnderline = new System.Windows.Forms.CheckBox();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.pictureBoxColorIndicator = new System.Windows.Forms.PictureBox();
             this.buttonChooseColor = new System.Windows.Forms.Button();
-            this.checkBoxUnderline = new System.Windows.Forms.CheckBox();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxColorIndicator)).BeginInit();
             this.SuspendLayout();
@@ -66,7 +66,9 @@
             this.numericUpDownFontSize.Name = "numericUpDownFontSize";
             this.numericUpDownFontSize.Size = new System.Drawing.Size(100, 32);
             this.numericUpDownFontSize.TabIndex = 1;
+            this.numericUpDownFontSize.Minimum = 1;
             this.numericUpDownFontSize.ValueChanged += new System.EventHandler(this.numericUpDownFontSize_ValueChanged);
+            this.numericUpDownFontSize.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.numericUpDownFontSize_KeyPress);
             // 
             // checkBoxBold
             // 
@@ -105,7 +107,6 @@
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.Size = new System.Drawing.Size(888, 353);
             this.richTextBox1.TabIndex = 9;
-            this.richTextBox1.Text = "Hello World";
             // 
             // checkBoxItalic
             // 
@@ -166,7 +167,7 @@
             this.checkBoxUnderline.Margin = new System.Windows.Forms.Padding(10);
             this.checkBoxUnderline.MinimumSize = new System.Drawing.Size(200, 50);
             this.checkBoxUnderline.Name = "checkBoxUnderline";
-            this.checkBoxUnderline.Size = new System.Drawing.Size(200, 50);
+            this.checkBoxUnderline.Size = new System.Drawing.Size(220, 50);
             this.checkBoxUnderline.TabIndex = 10;
             this.checkBoxUnderline.Text = "Подчеркнутый";
             this.checkBoxUnderline.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -195,7 +196,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxColorIndicator)).EndInit();
             this.ResumeLayout(false);
-
+            richTextBox1.Select();
+            richTextBox1.Focus();
         }
 
         #endregion
