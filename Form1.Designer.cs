@@ -37,6 +37,10 @@
             this.pictureBoxColorIndicator = new System.Windows.Forms.PictureBox();
             this.buttonChooseColor = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.buttonOpenFile = new System.Windows.Forms.Button();
+            this.buttonSave = new System.Windows.Forms.Button();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxColorIndicator)).BeginInit();
             this.SuspendLayout();
@@ -62,11 +66,20 @@
             this.numericUpDownFontSize.Cursor = System.Windows.Forms.Cursors.Hand;
             this.numericUpDownFontSize.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold);
             this.numericUpDownFontSize.Location = new System.Drawing.Point(336, 30);
+            this.numericUpDownFontSize.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.numericUpDownFontSize.MinimumSize = new System.Drawing.Size(100, 0);
             this.numericUpDownFontSize.Name = "numericUpDownFontSize";
             this.numericUpDownFontSize.Size = new System.Drawing.Size(100, 32);
             this.numericUpDownFontSize.TabIndex = 1;
-            this.numericUpDownFontSize.Minimum = 1;
+            this.numericUpDownFontSize.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             this.numericUpDownFontSize.ValueChanged += new System.EventHandler(this.numericUpDownFontSize_ValueChanged);
             this.numericUpDownFontSize.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.numericUpDownFontSize_KeyPress);
             // 
@@ -93,21 +106,6 @@
             this.checkBoxBold.UseVisualStyleBackColor = false;
             this.checkBoxBold.CheckedChanged += new System.EventHandler(this.checkBoxBold_CheckedChanged);
             // 
-            // richTextBox1
-            // 
-            this.richTextBox1.AcceptsTab = true;
-            this.richTextBox1.AutoWordSelection = true;
-            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.richTextBox1.EnableAutoDragDrop = true;
-            this.richTextBox1.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.richTextBox1.HideSelection = false;
-            this.richTextBox1.Location = new System.Drawing.Point(20, 173);
-            this.richTextBox1.Margin = new System.Windows.Forms.Padding(10);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(888, 353);
-            this.richTextBox1.TabIndex = 9;
-            // 
             // checkBoxItalic
             // 
             this.checkBoxItalic.Appearance = System.Windows.Forms.Appearance.Button;
@@ -129,28 +127,6 @@
             this.checkBoxItalic.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.checkBoxItalic.UseVisualStyleBackColor = true;
             this.checkBoxItalic.CheckedChanged += new System.EventHandler(this.checkBoxItalic_CheckedChanged);
-            // 
-            // pictureBoxColorIndicator
-            // 
-            this.pictureBoxColorIndicator.Location = new System.Drawing.Point(476, 30);
-            this.pictureBoxColorIndicator.Name = "pictureBoxColorIndicator";
-            this.pictureBoxColorIndicator.Size = new System.Drawing.Size(47, 47);
-            this.pictureBoxColorIndicator.TabIndex = 7;
-            this.pictureBoxColorIndicator.TabStop = false;
-            // 
-            // buttonChooseColor
-            // 
-            this.buttonChooseColor.BackColor = System.Drawing.Color.Transparent;
-            this.buttonChooseColor.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.buttonChooseColor.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.buttonChooseColor.FlatAppearance.BorderSize = 0;
-            this.buttonChooseColor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonChooseColor.Location = new System.Drawing.Point(476, 30);
-            this.buttonChooseColor.Name = "buttonChooseColor";
-            this.buttonChooseColor.Size = new System.Drawing.Size(47, 47);
-            this.buttonChooseColor.TabIndex = 8;
-            this.buttonChooseColor.UseVisualStyleBackColor = false;
-            this.buttonChooseColor.Click += new System.EventHandler(this.buttonChooseColor_Click);
             // 
             // checkBoxUnderline
             // 
@@ -174,12 +150,87 @@
             this.checkBoxUnderline.UseVisualStyleBackColor = true;
             this.checkBoxUnderline.CheckedChanged += new System.EventHandler(this.checkBoxUnderline_CheckedChanged);
             // 
+            // pictureBoxColorIndicator
+            // 
+            this.pictureBoxColorIndicator.Location = new System.Drawing.Point(476, 30);
+            this.pictureBoxColorIndicator.Name = "pictureBoxColorIndicator";
+            this.pictureBoxColorIndicator.Size = new System.Drawing.Size(47, 47);
+            this.pictureBoxColorIndicator.TabIndex = 7;
+            this.pictureBoxColorIndicator.TabStop = false;
+            // 
+            // buttonChooseColor
+            // 
+            this.buttonChooseColor.BackColor = System.Drawing.Color.Transparent;
+            this.buttonChooseColor.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.buttonChooseColor.FlatAppearance.BorderColor = System.Drawing.Color.Black;
+            this.buttonChooseColor.FlatAppearance.BorderSize = 0;
+            this.buttonChooseColor.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.buttonChooseColor.Location = new System.Drawing.Point(476, 30);
+            this.buttonChooseColor.Name = "buttonChooseColor";
+            this.buttonChooseColor.Size = new System.Drawing.Size(47, 47);
+            this.buttonChooseColor.TabIndex = 8;
+            this.buttonChooseColor.UseVisualStyleBackColor = false;
+            this.buttonChooseColor.Click += new System.EventHandler(this.buttonChooseColor_Click);
+            // 
+            // richTextBox1
+            // 
+            this.richTextBox1.AcceptsTab = true;
+            this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBox1.AutoWordSelection = true;
+            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.richTextBox1.EnableAutoDragDrop = true;
+            this.richTextBox1.Font = new System.Drawing.Font("MS Reference Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.richTextBox1.HideSelection = false;
+            this.richTextBox1.Location = new System.Drawing.Point(20, 272);
+            this.richTextBox1.Margin = new System.Windows.Forms.Padding(10);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(888, 254);
+            this.richTextBox1.TabIndex = 9;
+            this.richTextBox1.Text = "";
+            this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
+            // buttonOpenFile
+            // 
+            this.buttonOpenFile.Location = new System.Drawing.Point(23, 183);
+            this.buttonOpenFile.Name = "buttonOpenFile";
+            this.buttonOpenFile.Size = new System.Drawing.Size(140, 48);
+            this.buttonOpenFile.TabIndex = 14;
+            this.buttonOpenFile.Text = "Открыть файл";
+            this.buttonOpenFile.UseVisualStyleBackColor = true;
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.Location = new System.Drawing.Point(183, 183);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(178, 48);
+            this.buttonSave.TabIndex = 15;
+            this.buttonSave.Text = "Сохранить в файл";
+            this.buttonSave.UseVisualStyleBackColor = true;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(621, 30);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 28);
+            this.comboBox1.TabIndex = 16;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(928, 546);
+            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.buttonSave);
+            this.Controls.Add(this.buttonOpenFile);
             this.Controls.Add(this.checkBoxUnderline);
             this.Controls.Add(this.buttonChooseColor);
             this.Controls.Add(this.pictureBoxColorIndicator);
@@ -193,11 +244,11 @@
             this.Padding = new System.Windows.Forms.Padding(20);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Текстовый редактор";
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxColorIndicator)).EndInit();
             this.ResumeLayout(false);
-            richTextBox1.Select();
-            richTextBox1.Focus();
+
         }
 
         #endregion
@@ -211,6 +262,10 @@
         private System.Windows.Forms.PictureBox pictureBoxColorIndicator;
         private System.Windows.Forms.Button buttonChooseColor;
         private System.Windows.Forms.CheckBox checkBoxUnderline;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.Button buttonOpenFile;
+        private System.Windows.Forms.Button buttonSave;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }
 
