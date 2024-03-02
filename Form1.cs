@@ -19,6 +19,7 @@ namespace WindowsFormsApp1
     {
 
         private string currentFilePath;
+        private bool styleSelectedFromComboBox = false;
 
 
         public Form1()
@@ -29,6 +30,7 @@ namespace WindowsFormsApp1
             buttonSave.Click += new EventHandler(buttonSaveText_Click);
             comboBox1.SelectedIndexChanged += new EventHandler(comboBox1_SelectedIndexChanged);
             richTextBox1.SelectionChanged += new EventHandler(richTextBox1_SelectionChanged);
+            comboBox1.Items.Insert(0, "Сбросить стиль");
 
 
             foreach (FontFamily font in System.Drawing.FontFamily.Families)
@@ -41,10 +43,17 @@ namespace WindowsFormsApp1
             pictureBoxColorIndicator.BackColor = Color.Black;
             buttonChooseColor.BackColor = pictureBoxColorIndicator.BackColor;
         }
-
         private void richTextBox1_SelectionChanged(object sender, EventArgs e)
         {
-            UpdateUIWithCurrentTextStyle();
+            if (styleSelectedFromComboBox && defaultFont != null)
+            {
+                richTextBox1.SelectionFont = defaultFont;
+                richTextBox1.SelectionColor = defaultColor;
+            }
+            else if (!styleSelectedFromComboBox)
+            {
+                UpdateUIWithCurrentTextStyle();
+            }
         }
 
         private void comboBoxFont_SelectedIndexChanged(object sender, EventArgs e)
@@ -124,32 +133,24 @@ namespace WindowsFormsApp1
 
         private void ApplyTextStyle()
         {
-            // Убедимся, что есть выбранный шрифт, прежде чем пытаться применить стиль
+            // Проверяем, есть ли выделенный шрифт для применения стиля
             if (richTextBox1.SelectionFont != null)
             {
                 FontStyle style = FontStyle.Regular;
 
-                if (checkBoxBold.Checked)
-                    style |= FontStyle.Bold;
+                if (checkBoxBold.Checked) style |= FontStyle.Bold;
+                if (checkBoxItalic.Checked) style |= FontStyle.Italic;
+                if (checkBoxUnderline.Checked) style |= FontStyle.Underline;
 
-                if (checkBoxItalic.Checked)
-                    style |= FontStyle.Italic;
-
-                if (checkBoxUnderline.Checked)
-                    style |= FontStyle.Underline;
-
-                // Сохраняем текущий шрифт и размер
-                Font currentFont = richTextBox1.SelectionFont;
-                float currentSize = currentFont.Size;
-                FontFamily currentFamily = currentFont.FontFamily;
-
-                // Применяем новый стиль, сохраняя все остальные атрибуты шрифта
-                richTextBox1.SelectionFont = new Font(currentFamily, currentSize, style);
-
-                // Восстановим цвет, если он был изменен
+                // Применяем новый стиль, сохраняя размер и семейство шрифта
+                richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont.FontFamily,
+                                                      richTextBox1.SelectionFont.Size,
+                                                      style);
+                // Если цвет был изменен, применяем его также
                 richTextBox1.SelectionColor = richTextBox1.SelectionColor;
             }
         }
+
 
 
 
@@ -460,9 +461,12 @@ namespace WindowsFormsApp1
 
 
         // Этот метод анализирует текст в RichTextBox и извлекает уникальные стили
+        // Этот метод анализирует текст в RichTextBox и извлекает уникальные стили
         private void AnalyzeAndAddStylesToComboBox()
         {
             comboBox1.Items.Clear(); // Очистить comboBox перед добавлением новых стилей
+            comboBox1.Items.Insert(0, "Сбросить стиль"); // Добавляем элемент сброса стиля в начало списка
+
             Dictionary<string, TextStyle> uniqueStyles = new Dictionary<string, TextStyle>();
 
             for (int i = 0; i < richTextBox1.TextLength; i++)
@@ -486,9 +490,14 @@ namespace WindowsFormsApp1
 
             comboBox1.DisplayMember = "Name"; // Устанавливаем отображаемое имя
             richTextBox1.Select(0, 0); // Сбросить выделение
+
+            // Сброс выбранного стиля после обновления comboBox
+            styleSelectedFromComboBox = false;
+            comboBox1.SelectedIndex = 0;
         }
 
-       
+
+
 
 
         // Этот метод возвращает строковое описание стиля для данного шрифта и цвета
@@ -508,6 +517,23 @@ namespace WindowsFormsApp1
             return sb.ToString();
         }
 
+        private void richTextBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Если у нас есть сохраненный шрифт, применяем его к новому тексту
+            if (styleSelectedFromComboBox && defaultFont != null)
+            {
+                // Применяем шрифт и цвет к выделению
+                richTextBox1.SelectionFont = defaultFont;
+                richTextBox1.SelectionColor = defaultColor;
+
+                // Переопределяем стиль для следующего символа
+                richTextBox1.SelectionStart = richTextBox1.SelectionStart + 1;
+                richTextBox1.SelectionLength = 0;
+                richTextBox1.SelectionFont = defaultFont;
+                richTextBox1.SelectionColor = defaultColor;
+            }
+        }
+
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
@@ -519,24 +545,69 @@ namespace WindowsFormsApp1
 
         }
 
+        private Font defaultFont;
+        private Color defaultColor;
+
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBox1.SelectedItem is TextStyle selectedStyle)
+            if (comboBox1.SelectedIndex == 0)
             {
-                // Применить стиль к выделенному тексту
-                if (richTextBox1.SelectedText.Length > 0)
-                {
-                    richTextBox1.SelectionFont = selectedStyle.Font;
-                    richTextBox1.SelectionColor = selectedStyle.Color;
-                }
-                else
-                {
-                    // Если текст не выделен, установить стиль для нового текста
-                    richTextBox1.Font = selectedStyle.Font;
-                    richTextBox1.ForeColor = selectedStyle.Color;
-                }
+                // Сброс стиля
+                styleSelectedFromComboBox = false;
+                defaultFont = null; // Очистить сохраненный шрифт
+                defaultColor = Color.Black; // Сброс цвета на стандартный
+                UpdateUIWithCurrentTextStyle();
+            }
+            else if (comboBox1.SelectedItem is TextStyle selectedStyle)
+            {
+                styleSelectedFromComboBox = true;
+
+                // Сохраняем выбранный шрифт и цвет как стандартные
+                defaultFont = selectedStyle.Font;
+                defaultColor = selectedStyle.Color;
+
+                UpdateUIWithSelectedStyle(selectedStyle);
+                ApplySelectedTextStyle(selectedStyle);
             }
         }
+
+
+        private void ApplySelectedTextStyle(TextStyle selectedStyle)
+        {
+            // Применяем шрифт и цвет из выбранного стиля
+            richTextBox1.SelectionFont = selectedStyle.Font;
+            richTextBox1.SelectionColor = selectedStyle.Color;
+        }
+
+        private void UpdateUIWithSelectedStyle(TextStyle selectedStyle)
+        {
+            // Отключаем обработчики событий для предотвращения рекурсии
+            comboBoxFont.SelectedIndexChanged -= comboBoxFont_SelectedIndexChanged;
+            numericUpDownFontSize.ValueChanged -= numericUpDownFontSize_ValueChanged;
+            checkBoxBold.CheckedChanged -= checkBoxBold_CheckedChanged;
+            checkBoxItalic.CheckedChanged -= checkBoxItalic_CheckedChanged;
+            checkBoxUnderline.CheckedChanged -= checkBoxUnderline_CheckedChanged;
+
+            // Устанавливаем значения элементов управления согласно выбранному стилю
+            comboBoxFont.SelectedItem = selectedStyle.Font.FontFamily.Name;
+            numericUpDownFontSize.Value = (decimal)selectedStyle.Font.Size;
+            checkBoxBold.Checked = selectedStyle.Font.Bold;
+            checkBoxItalic.Checked = selectedStyle.Font.Italic;
+            checkBoxUnderline.Checked = selectedStyle.Font.Underline;
+            pictureBoxColorIndicator.BackColor = selectedStyle.Color;
+            buttonChooseColor.BackColor = selectedStyle.Color;
+
+            // Включаем обратно обработчики событий
+            comboBoxFont.SelectedIndexChanged += comboBoxFont_SelectedIndexChanged;
+            numericUpDownFontSize.ValueChanged += numericUpDownFontSize_ValueChanged;
+            checkBoxBold.CheckedChanged += checkBoxBold_CheckedChanged;
+            checkBoxItalic.CheckedChanged += checkBoxItalic_CheckedChanged;
+            checkBoxUnderline.CheckedChanged += checkBoxUnderline_CheckedChanged;
+        }
+
+     
+
+
 
         private void UpdateUIWithCurrentTextStyle()
         {
