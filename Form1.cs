@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
-
+using System.Security.Cryptography;
 
 namespace WindowsFormsApp1
 {
@@ -18,21 +18,18 @@ namespace WindowsFormsApp1
 
     {
 
-        private string currentFilePath;
-        private bool styleSelectedFromComboBox = false;
+        public static string releaseFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+        public static string fileNameAlertSave = "saved.rtf";
+        public static string fileNameAlertSaveValidator = "valid.txt";
+        public string currentFilePath = Path.Combine(releaseFolderPath, fileNameAlertSave);
+        public string currentFilePathValidator = Path.Combine(releaseFolderPath, fileNameAlertSaveValidator);
 
 
         public Form1()
         {
             InitializeComponent();
-
-            buttonOpenFile.Click += new System.EventHandler(this.buttonOpenFile_Click);
-            buttonSave.Click += new EventHandler(buttonSaveText_Click);
             comboBox1.SelectedIndexChanged += new EventHandler(comboBox1_SelectedIndexChanged);
             richTextBox1.SelectionChanged += new EventHandler(richTextBox1_SelectionChanged);
-            comboBox1.Items.Insert(0, "Сбросить стиль");
-
-
             foreach (FontFamily font in System.Drawing.FontFamily.Families)
             {
                 comboBoxFont.Items.Add(font.Name);
@@ -42,18 +39,132 @@ namespace WindowsFormsApp1
             numericUpDownFontSize.Value = 14;
             pictureBoxColorIndicator.BackColor = Color.Black;
             buttonChooseColor.BackColor = pictureBoxColorIndicator.BackColor;
+
+            comboBox1.SelectedIndexChanged += new EventHandler(comboBox1_SelectedIndexChanged);
+            this.FormClosing += Form1_FormClosing;
+            this.Load += Form1_Load;
+            richTextBox1.KeyPress += RichTextBox1_KeyPress;
+            comboBox1.KeyPress += comboBox_KeyPress;
+            comboBoxFont.KeyPress += comboBox_KeyPress;
         }
+
+        private void comboBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            bool error = false;
+            try
+            {
+                richTextBox1.SaveFile(this.currentFilePath, RichTextBoxStreamType.RichText);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                error = true;
+                MessageBox.Show($"Отказано в доступе к файлу: {ex.Message}", "Файл аварийного сохранения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                error = true;
+                MessageBox.Show($"Ошибка сохранения файла: {ex.Message}", "Файл аварийного сохранения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            if (!error)
+            {
+                try
+                {
+                    string saveText = File.ReadAllText(this.currentFilePath);
+                    File.WriteAllText(this.currentFilePathValidator, CalculateHash(saveText));
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    MessageBox.Show($"Отказано в доступе к файлу: {ex.Message}", "Файл-валидатор аварийного сохранения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка сохранения файла: {ex.Message}", "Файл-валидатор аварийного сохранения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            string prevValid = null;
+            string currentValid = null;
+            bool error = false;
+            try
+            {
+                if (File.Exists(this.currentFilePath))
+                {
+                    currentValid = File.ReadAllText(this.currentFilePath);
+                    richTextBox1.LoadFile(this.currentFilePath, RichTextBoxStreamType.RichText);
+                }
+                else
+                {
+                    using (StreamWriter sw = File.CreateText(this.currentFilePath))
+                    {
+                        sw.Close();
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                error = true;
+                MessageBox.Show($"Доступ запрещен. {ex.Message}", "Файл аварийного сохранения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                error = true;
+                MessageBox.Show($"Ошибка открытия файла: {ex.Message}", "Файл аварийного сохранения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            try
+            {
+                if (File.Exists(this.currentFilePathValidator))
+                {
+                    prevValid = File.ReadAllText(this.currentFilePathValidator);
+                }
+                else
+                {
+                    using (StreamWriter sw = File.CreateText(this.currentFilePathValidator))
+                    {
+                        sw.Close();
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                error = true;
+                MessageBox.Show($"Доступ запрещен. {ex.Message}", "Файл-валидатор аварийного сохранения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                error = true;
+                MessageBox.Show($"Ошибка открытия файла: {ex.Message}", "Файл-валидатор аварийного сохранения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            if (!error && prevValid != null && currentValid != null)
+            {
+                if (prevValid != CalculateHash(currentValid))
+                {
+                    MessageBox.Show($"Файл аварийного сохранения был изменен извне, возможны потери прогресса работы", "Внесистемные изменения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            AnalyzeAndAddStylesToComboBox();
+        }
+
+        private string CalculateHash(string input)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+                byte[] hashBytes = sha256.ComputeHash(inputBytes);
+                return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+            }
+        }
+
+
         private void richTextBox1_SelectionChanged(object sender, EventArgs e)
         {
-            if (styleSelectedFromComboBox && defaultFont != null)
-            {
-                richTextBox1.SelectionFont = defaultFont;
-                richTextBox1.SelectionColor = defaultColor;
-            }
-            else if (!styleSelectedFromComboBox)
-            {
-                UpdateUIWithCurrentTextStyle();
-            }
+            UpdateUIWithCurrentTextStyle();
         }
 
         private void comboBoxFont_SelectedIndexChanged(object sender, EventArgs e)
@@ -105,54 +216,58 @@ namespace WindowsFormsApp1
         }
 
         private void checkBoxBold_CheckedChanged(object sender, EventArgs e)
-        { if (checkBoxBold.Focused)
+        {
+            if (checkBoxBold.Focused)
             {
                 ApplyTextStyle();
             }
-            UpdatePreview("BoldChanged"); 
-           
+            UpdatePreview("BoldChanged");
+
         }
 
-        private void checkBoxItalic_CheckedChanged(object sender, EventArgs e)
-        {if (checkBoxItalic.Focused)
-            {
-                ApplyTextStyle();
-            }
-            UpdatePreview("ItalicChanged"); 
+        private void RichTextBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
             
         }
 
+        private void checkBoxItalic_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBoxItalic.Focused)
+            {
+                ApplyTextStyle();
+            }
+            UpdatePreview("ItalicChanged");
+
+        }
+
         private void checkBoxUnderline_CheckedChanged(object sender, EventArgs e)
-        { if (checkBoxUnderline.Focused)
+        {
+            if (checkBoxUnderline.Focused)
             {
                 ApplyTextStyle();
             }
             UpdatePreview("UnderlineChanged");
-           
+
         }
 
         private void ApplyTextStyle()
         {
-            // Проверяем, есть ли выделенный шрифт для применения стиля
             if (richTextBox1.SelectionFont != null)
             {
                 FontStyle style = FontStyle.Regular;
-
-                if (checkBoxBold.Checked) style |= FontStyle.Bold;
-                if (checkBoxItalic.Checked) style |= FontStyle.Italic;
-                if (checkBoxUnderline.Checked) style |= FontStyle.Underline;
-
-                // Применяем новый стиль, сохраняя размер и семейство шрифта
-                richTextBox1.SelectionFont = new Font(richTextBox1.SelectionFont.FontFamily,
-                                                      richTextBox1.SelectionFont.Size,
-                                                      style);
-                // Если цвет был изменен, применяем его также
+                if (checkBoxBold.Checked)
+                    style |= FontStyle.Bold;
+                if (checkBoxItalic.Checked)
+                    style |= FontStyle.Italic;
+                if (checkBoxUnderline.Checked)
+                    style |= FontStyle.Underline;
+                Font currentFont = richTextBox1.SelectionFont;
+                float currentSize = currentFont.Size;
+                FontFamily currentFamily = currentFont.FontFamily;
+                richTextBox1.SelectionFont = new Font(currentFamily, currentSize, style);
                 richTextBox1.SelectionColor = richTextBox1.SelectionColor;
             }
         }
-
-
-
 
         private void UpdatePreview(String Message)
         {
@@ -312,136 +427,13 @@ namespace WindowsFormsApp1
         {
             using (ColorDialog colorDialog = new ColorDialog())
             {
-                // Установить начальный цвет в ColorDialog, равный текущему цвету индикатора
                 colorDialog.Color = pictureBoxColorIndicator.BackColor;
-
-                // Показать диалог выбора цвета
                 if (colorDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // Изменить фон pictureBoxColorIndicator на выбранный цвет
                     pictureBoxColorIndicator.BackColor = colorDialog.Color;
-
                     buttonChooseColor.BackColor = pictureBoxColorIndicator.BackColor;
-
                     richTextBox1.SelectionColor = colorDialog.Color;
-
                 }
-            }
-        }
-
-
-
-        private void buttonSaveText_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(currentFilePath))
-                {
-
-                    richTextBox1.SaveFile(currentFilePath, RichTextBoxStreamType.RichText);
-                    buttonSaveAsNew_Click(sender, e);
-                    currentFilePath = null;
-                }
-                else
-                {
-                    buttonSaveAsNew_Click(sender, e);
-                    currentFilePath = null;
-                }
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                MessageBox.Show($"Отказано в доступе к файлу: {ex.Message}", "Ошибка доступа", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка сохранения файла: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void buttonOpenFile_Click(object sender, EventArgs e)
-
-
-        {
-
-            try
-            {
-                using (OpenFileDialog openFileDialog = new OpenFileDialog())
-                {
-                    openFileDialog.Filter = "RTF files (*.rtf)|*.rtf";
-                    openFileDialog.RestoreDirectory = true;
-
-                    try
-                    {
-                        if (openFileDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            currentFilePath = openFileDialog.FileName;
-                            richTextBox1.LoadFile(currentFilePath, RichTextBoxStreamType.RichText); 
-                            AnalyzeAndAddStylesToComboBox(); // Вызов функции анализа стилей
-
-                        }
-                        else
-                        {
-                            currentFilePath = null;
-                        }
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        // Вывести сообщение пользователю, что доступ запрещен
-                        MessageBox.Show($"Доступ запрещен. {ex.Message}", "Ошибка доступа", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка открытия файла 123: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                // Вывести сообщение пользователю, что доступ запрещен
-                MessageBox.Show($"Доступ запрещен. {ex.Message}", "Ошибка доступа", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка открытия файла: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-
-        private void buttonSaveAsNew_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-                {
-                    saveFileDialog.Filter = "RTF files (*.rtf)|*.rtf";
-                    saveFileDialog.RestoreDirectory = true;
-
-                    try
-                    {
-                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            currentFilePath = saveFileDialog.FileName;
-                            richTextBox1.SaveFile(currentFilePath, RichTextBoxStreamType.RichText);
-                            currentFilePath = null;
-                        }
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        MessageBox.Show($"Отказано в доступе при попытке сохранения файла: {ex.Message}", "Ошибка доступа", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Ошибка сохранения как нового файла: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                MessageBox.Show($"Ошибка доступа к файлу: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Произошла неизвестная ошибка: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -459,14 +451,9 @@ namespace WindowsFormsApp1
             }
         }
 
-
-        // Этот метод анализирует текст в RichTextBox и извлекает уникальные стили
-        // Этот метод анализирует текст в RichTextBox и извлекает уникальные стили
         private void AnalyzeAndAddStylesToComboBox()
         {
-            comboBox1.Items.Clear(); // Очистить comboBox перед добавлением новых стилей
-            comboBox1.Items.Insert(0, "Сбросить стиль"); // Добавляем элемент сброса стиля в начало списка
-
+            comboBox1.Items.Clear();
             Dictionary<string, TextStyle> uniqueStyles = new Dictionary<string, TextStyle>();
 
             for (int i = 0; i < richTextBox1.TextLength; i++)
@@ -488,19 +475,10 @@ namespace WindowsFormsApp1
                 comboBox1.Items.Add(style);
             }
 
-            comboBox1.DisplayMember = "Name"; // Устанавливаем отображаемое имя
-            richTextBox1.Select(0, 0); // Сбросить выделение
-
-            // Сброс выбранного стиля после обновления comboBox
-            styleSelectedFromComboBox = false;
-            comboBox1.SelectedIndex = 0;
+            comboBox1.DisplayMember = "Name";
+            richTextBox1.Select(0, 0);
         }
 
-
-
-
-
-        // Этот метод возвращает строковое описание стиля для данного шрифта и цвета
         private string GetStyleDescription(Font font, Color color)
         {
             StringBuilder sb = new StringBuilder();
@@ -517,118 +495,58 @@ namespace WindowsFormsApp1
             return sb.ToString();
         }
 
-        private void richTextBox1_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            // Если у нас есть сохраненный шрифт, применяем его к новому тексту
-            if (styleSelectedFromComboBox && defaultFont != null)
-            {
-                // Применяем шрифт и цвет к выделению
-                richTextBox1.SelectionFont = defaultFont;
-                richTextBox1.SelectionColor = defaultColor;
-
-                // Переопределяем стиль для следующего символа
-                richTextBox1.SelectionStart = richTextBox1.SelectionStart + 1;
-                richTextBox1.SelectionLength = 0;
-                richTextBox1.SelectionFont = defaultFont;
-                richTextBox1.SelectionColor = defaultColor;
-            }
-        }
-
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-          
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private Font defaultFont;
-        private Color defaultColor;
-
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBox1.SelectedIndex == 0)
+            int pos = richTextBox1.SelectionStart;
+            if (comboBox1.SelectedItem is TextStyle selectedStyle)
             {
-                // Сброс стиля
-                styleSelectedFromComboBox = false;
-                defaultFont = null; // Очистить сохраненный шрифт
-                defaultColor = Color.Black; // Сброс цвета на стандартный
-                UpdateUIWithCurrentTextStyle();
+                if (richTextBox1.SelectedText.Length > 0)
+                {
+                    richTextBox1.SelectionFont = selectedStyle.Font;
+                    richTextBox1.SelectionColor = selectedStyle.Color;
+                }
+                else
+                {
+                    Font currentFont = selectedStyle.Font;
+                    Color currentColor = selectedStyle.Color;
+                    comboBoxFont.SelectedIndexChanged -= comboBoxFont_SelectedIndexChanged;
+                    numericUpDownFontSize.ValueChanged -= numericUpDownFontSize_ValueChanged;
+                    checkBoxBold.CheckedChanged -= checkBoxBold_CheckedChanged;
+                    checkBoxItalic.CheckedChanged -= checkBoxItalic_CheckedChanged;
+                    checkBoxUnderline.CheckedChanged -= checkBoxUnderline_CheckedChanged;
+                    if (currentFont != null)
+                    {
+                        comboBoxFont.SelectedItem = currentFont.FontFamily.Name;
+                        numericUpDownFontSize.Value = (decimal)currentFont.Size;
+                        checkBoxBold.Checked = currentFont.Bold;
+                        checkBoxItalic.Checked = currentFont.Italic;
+                        checkBoxUnderline.Checked = currentFont.Underline;
+                    }
+                    pictureBoxColorIndicator.BackColor = currentColor;
+                    buttonChooseColor.BackColor = currentColor;
+                    comboBoxFont.SelectedIndexChanged += comboBoxFont_SelectedIndexChanged;
+                    numericUpDownFontSize.ValueChanged += numericUpDownFontSize_ValueChanged;
+                    checkBoxBold.CheckedChanged += checkBoxBold_CheckedChanged;
+                    checkBoxItalic.CheckedChanged += checkBoxItalic_CheckedChanged;
+                    checkBoxUnderline.CheckedChanged += checkBoxUnderline_CheckedChanged;
+
+                }
             }
-            else if (comboBox1.SelectedItem is TextStyle selectedStyle)
-            {
-                styleSelectedFromComboBox = true;
-
-                // Сохраняем выбранный шрифт и цвет как стандартные
-                defaultFont = selectedStyle.Font;
-                defaultColor = selectedStyle.Color;
-
-                UpdateUIWithSelectedStyle(selectedStyle);
-                ApplySelectedTextStyle(selectedStyle);
-            }
+            richTextBox1.Select(pos, pos);
         }
-
-
-        private void ApplySelectedTextStyle(TextStyle selectedStyle)
-        {
-            // Применяем шрифт и цвет из выбранного стиля
-            richTextBox1.SelectionFont = selectedStyle.Font;
-            richTextBox1.SelectionColor = selectedStyle.Color;
-        }
-
-        private void UpdateUIWithSelectedStyle(TextStyle selectedStyle)
-        {
-            // Отключаем обработчики событий для предотвращения рекурсии
-            comboBoxFont.SelectedIndexChanged -= comboBoxFont_SelectedIndexChanged;
-            numericUpDownFontSize.ValueChanged -= numericUpDownFontSize_ValueChanged;
-            checkBoxBold.CheckedChanged -= checkBoxBold_CheckedChanged;
-            checkBoxItalic.CheckedChanged -= checkBoxItalic_CheckedChanged;
-            checkBoxUnderline.CheckedChanged -= checkBoxUnderline_CheckedChanged;
-
-            // Устанавливаем значения элементов управления согласно выбранному стилю
-            comboBoxFont.SelectedItem = selectedStyle.Font.FontFamily.Name;
-            numericUpDownFontSize.Value = (decimal)selectedStyle.Font.Size;
-            checkBoxBold.Checked = selectedStyle.Font.Bold;
-            checkBoxItalic.Checked = selectedStyle.Font.Italic;
-            checkBoxUnderline.Checked = selectedStyle.Font.Underline;
-            pictureBoxColorIndicator.BackColor = selectedStyle.Color;
-            buttonChooseColor.BackColor = selectedStyle.Color;
-
-            // Включаем обратно обработчики событий
-            comboBoxFont.SelectedIndexChanged += comboBoxFont_SelectedIndexChanged;
-            numericUpDownFontSize.ValueChanged += numericUpDownFontSize_ValueChanged;
-            checkBoxBold.CheckedChanged += checkBoxBold_CheckedChanged;
-            checkBoxItalic.CheckedChanged += checkBoxItalic_CheckedChanged;
-            checkBoxUnderline.CheckedChanged += checkBoxUnderline_CheckedChanged;
-        }
-
-     
-
-
 
         private void UpdateUIWithCurrentTextStyle()
         {
-            // Отключаем обработку событий изменения для контролов, чтобы избежать рекурсивного вызова
             comboBoxFont.SelectedIndexChanged -= comboBoxFont_SelectedIndexChanged;
             numericUpDownFontSize.ValueChanged -= numericUpDownFontSize_ValueChanged;
             checkBoxBold.CheckedChanged -= checkBoxBold_CheckedChanged;
             checkBoxItalic.CheckedChanged -= checkBoxItalic_CheckedChanged;
             checkBoxUnderline.CheckedChanged -= checkBoxUnderline_CheckedChanged;
-
-            // Сохраняем текущее положение курсора
             int selectionStart = richTextBox1.SelectionStart;
-
-            // Если курсор не в начале текста, получаем стили предыдущего символа
             if (selectionStart > 0)
             {
-                // Получаем стиль символа непосредственно перед текущей позицией курсора
                 Font currentFont = richTextBox1.SelectionFont;
                 Color currentColor = richTextBox1.SelectionColor;
-
-                // Обновляем элементы управления
                 if (currentFont != null)
                 {
                     comboBoxFont.SelectedItem = currentFont.FontFamily.Name;
@@ -640,8 +558,6 @@ namespace WindowsFormsApp1
                 pictureBoxColorIndicator.BackColor = currentColor;
                 buttonChooseColor.BackColor = currentColor;
             }
-
-            // Включаем обратно обработку событий изменения для контролов
             comboBoxFont.SelectedIndexChanged += comboBoxFont_SelectedIndexChanged;
             numericUpDownFontSize.ValueChanged += numericUpDownFontSize_ValueChanged;
             checkBoxBold.CheckedChanged += checkBoxBold_CheckedChanged;

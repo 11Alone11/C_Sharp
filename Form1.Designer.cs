@@ -38,8 +38,6 @@
             this.buttonChooseColor = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.buttonOpenFile = new System.Windows.Forms.Button();
-            this.buttonSave = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxColorIndicator)).BeginInit();
@@ -189,29 +187,11 @@
             this.richTextBox1.Size = new System.Drawing.Size(888, 254);
             this.richTextBox1.TabIndex = 9;
             this.richTextBox1.Text = "";
-            this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
+            //this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // buttonOpenFile
-            // 
-            this.buttonOpenFile.Location = new System.Drawing.Point(23, 183);
-            this.buttonOpenFile.Name = "buttonOpenFile";
-            this.buttonOpenFile.Size = new System.Drawing.Size(140, 48);
-            this.buttonOpenFile.TabIndex = 14;
-            this.buttonOpenFile.Text = "Открыть файл";
-            this.buttonOpenFile.UseVisualStyleBackColor = true;
-            // 
-            // buttonSave
-            // 
-            this.buttonSave.Location = new System.Drawing.Point(183, 183);
-            this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(178, 48);
-            this.buttonSave.TabIndex = 15;
-            this.buttonSave.Text = "Сохранить в файл";
-            this.buttonSave.UseVisualStyleBackColor = true;
             // 
             // comboBox1
             // 
@@ -229,8 +209,6 @@
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(928, 546);
             this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.buttonSave);
-            this.Controls.Add(this.buttonOpenFile);
             this.Controls.Add(this.checkBoxUnderline);
             this.Controls.Add(this.buttonChooseColor);
             this.Controls.Add(this.pictureBoxColorIndicator);
@@ -263,8 +241,6 @@
         private System.Windows.Forms.Button buttonChooseColor;
         private System.Windows.Forms.CheckBox checkBoxUnderline;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.Button buttonOpenFile;
-        private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.ComboBox comboBox1;
     }
 }
